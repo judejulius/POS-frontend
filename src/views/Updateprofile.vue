@@ -1,4 +1,9 @@
 <template>
+<div class="container">
+  <div class="row">
+    <div class="col">
+
+      
     <form @submit.prevent="updateprofile" class="form border">
     <h2 class="form-heading">Update Profile</h2>
 
@@ -28,6 +33,25 @@
     />
     <button type="submit" class="form-btn border">Update</button>
   </form>
+    </div>
+    <div class="col">
+      <div v-if="users">
+
+      <div class="card-group">
+  <div class="card">
+    <img src="" class="card-img-top" alt="...">
+    <div class="card-body">
+      <h5 class="card-title">{{users.name}}</h5>
+      <p class="card-text">{{users.contact}}</p>
+      <p class="card-text">{{users.email}}</p>
+      <p class="card-text"></p>
+    </div>
+    </div>
+      </div>
+  </div>
+</div>
+  </div>
+</div>
 </template>
 <script>
 export default {
@@ -38,11 +62,15 @@ export default {
       name:"",
       contact:"",
       email:"",
+      img:""
     };
   },
-mounted() {
-    if (localStorage.getItem("jwt")) {
-      fetch("http://localhost:2000/users"  , {
+mounted(){
+      if (!localStorage.getItem("jwt")) {
+        alert("User not logged in");
+        return this.$router.push({ name: "Login" });
+      }
+      fetch("http://localhost:2000/users/oneuser/", {
         method: "GET",
         headers: {
           "Content-type": "application/json; charset=UTF-8",
@@ -51,36 +79,12 @@ mounted() {
       })
         .then((response) => response.json())
         .then((json) => {
-          this.users = json;
-          this.users.forEach(async (user) => {
-            await fetch(
-              "http://localhost:2000/users/" + user._id,
-              {
-                method: "GET",
-                headers: {
-                  "Content-type": "application/json; charset=UTF-8",
-                  Authorization: `Bearer ${localStorage.getItem("jwt")}`,
-                },
-              }
-            )
-            
-              .then((response) => response.json())
-              
-              .then((json) => {
-               user._id = json.name;
-              });
-          });
+          this.users = json
         })
         .catch((err) => {
-          alert("Not logged in");
-          this.$router.push({ name: "Login" })
+          alert(err);
         });
-    } else {
-      alert("Login failed");
-      this.$router.push({ name: "Login" });
-    }
-    
-  },
+    },
   
 }
 </script>
